@@ -1,7 +1,10 @@
-import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, FacebookAuthProvider, Auth } from 'firebase/auth';
-import { getFirestore, Firestore } from 'firebase/firestore';
-import { FirebaseConfig } from './types';
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import type { FirebaseApp } from 'firebase/app';
+import { getAuth, GoogleAuthProvider, FacebookAuthProvider } from 'firebase/auth';
+import type { Auth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
+import type { Firestore } from 'firebase/firestore';
+import type { FirebaseConfig } from './types';
 
 // Storage key for user-configured credentials
 const FIREBASE_CONFIG_KEY = 'aircon_firebase_config';
@@ -67,3 +70,4 @@ facebookProvider.addScope('email');
 facebookProvider.addScope('public_profile');
 
 export { app, auth, db };
+

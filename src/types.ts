@@ -60,3 +60,4 @@ export interface FirebaseConfig {
   messagingSenderId: string;
   appId: string;
 }
+

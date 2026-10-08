@@ -1,6 +1,6 @@
-import { MaintenanceStatus } from '../types';
+import type { MaintenanceStatus } from '../types';
 
-export const COMMON_AC_TASKS = [
+export const COMMON_AC_TASKS_EN = [
   'Inspect and clean/replace air filters',
   'Clean evaporator and condenser coils',
   'Flush and clear condensate drain line',
@@ -11,6 +11,20 @@ export const COMMON_AC_TASKS = [
   'Test thermostat calibration and cycle controls',
   'Inspect duct connections and airflow'
 ];
+
+export const COMMON_AC_TASKS_ES = [
+  'Inspeccionar y limpiar/reemplazar filtros de aire',
+  'Limpiar serpentines del evaporador y condensador',
+  'Purgar y destapar línea de drenaje de condensado',
+  'Verificar presiones de refrigerante y buscar fugas',
+  'Inspeccionar cableado eléctrico, contactores y capacitores',
+  'Medir salto térmico delta-T en el serpentín',
+  'Lubricar motores de ventilador e inspeccionar rodamientos',
+  'Calibrar termostato y probar ciclos de operación',
+  'Inspeccionar conexiones de ductos y flujo de aire'
+];
+
+export const COMMON_AC_TASKS = COMMON_AC_TASKS_EN;
 
 export const REFRIGERANT_TYPES = [
   'R-410A',
@@ -57,15 +71,15 @@ export function calculateNextDueDate(lastServiceDateStr: string, intervalMonths:
 }
 
 /**
- * Determines maintenance status and urgency metrics.
+ * Determines maintenance status and urgency metrics with language support.
  */
-export function getMaintenanceStatus(nextDueDateStr: string): {
+export function getMaintenanceStatus(nextDueDateStr: string, lang: 'en' | 'es' = 'en'): {
   status: MaintenanceStatus;
-  daysDiff: number; // positive = days until due, negative = days overdue
+  daysDiff: number;
   badgeText: string;
 } {
   if (!nextDueDateStr) {
-    return { status: 'due_soon', daysDiff: 0, badgeText: 'Needs Date' };
+    return { status: 'due_soon', daysDiff: 0, badgeText: lang === 'es' ? 'Requiere Fecha' : 'Needs Date' };
   }
 
   const today = new Date();
@@ -80,35 +94,45 @@ export function getMaintenanceStatus(nextDueDateStr: string): {
 
   if (diffDays < 0) {
     const overdueDays = Math.abs(diffDays);
+    const badgeText = lang === 'es'
+      ? (overdueDays === 1 ? 'Vencido por 1 día' : `Vencido por ${overdueDays} días`)
+      : (overdueDays === 1 ? 'Overdue by 1 day' : `Overdue by ${overdueDays} days`);
     return {
       status: 'overdue',
       daysDiff: diffDays,
-      badgeText: overdueDays === 1 ? 'Overdue by 1 day' : `Overdue by ${overdueDays} days`
+      badgeText
     };
   } else if (diffDays <= 30) {
+    const badgeText = lang === 'es'
+      ? (diffDays === 0 ? 'Vence Hoy' : (diffDays === 1 ? 'Vence en 1 día' : `Vence en ${diffDays} días`))
+      : (diffDays === 0 ? 'Due Today' : `Due in ${diffDays} day${diffDays === 1 ? '' : 's'}`);
     return {
       status: 'due_soon',
       daysDiff: diffDays,
-      badgeText: diffDays === 0 ? 'Due Today' : `Due in ${diffDays} day${diffDays === 1 ? '' : 's'}`
+      badgeText
     };
   } else {
+    const months = Math.round(diffDays / 30);
+    const badgeText = lang === 'es'
+      ? `En ${months} meses (${diffDays}d)`
+      : `In ${months} months (${diffDays}d)`;
     return {
       status: 'good',
       daysDiff: diffDays,
-      badgeText: `In ${Math.round(diffDays / 30)} months (${diffDays}d)`
+      badgeText
     };
   }
 }
 
 /**
- * Pretty formats YYYY-MM-DD
+ * Pretty formats YYYY-MM-DD in user's selected locale
  */
-export function formatDate(dateStr: string): string {
+export function formatDate(dateStr: string, lang: 'en' | 'es' = 'en'): string {
   if (!dateStr) return 'N/A';
   try {
     const [year, month, day] = dateStr.split('-').map(Number);
     const date = new Date(year, month - 1, day);
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleDateString(lang === 'es' ? 'es-ES' : 'en-US', {
       month: 'short',
       day: 'numeric',
       year: 'numeric'

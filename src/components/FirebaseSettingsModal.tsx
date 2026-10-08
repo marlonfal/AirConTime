@@ -4,8 +4,9 @@ import {
   saveStoredFirebaseConfig, 
   clearStoredFirebaseConfig 
 } from '../firebase';
-import { FirebaseConfig } from '../types';
-import { X, Database, Check, AlertCircle, RefreshCw, KeyRound } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
+import type { FirebaseConfig } from '../types';
+import { X, Check } from 'lucide-react';
 
 interface Props {
   isOpen: boolean;
@@ -14,6 +15,8 @@ interface Props {
 
 export const FirebaseSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const currentConfig = getStoredFirebaseConfig();
+  const { language, t } = useLanguage();
+
   const [config, setConfig] = useState<FirebaseConfig>({
     apiKey: currentConfig?.apiKey || '',
     authDomain: currentConfig?.authDomain || '',
@@ -37,121 +40,115 @@ export const FirebaseSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
   };
 
   const handleClear = () => {
-    if (confirm('Switch back to local demo storage? Stored Firebase keys will be removed from this browser.')) {
+    const confirmMsg = language === 'es'
+      ? '¿Cambiar al modo de almacenamiento local demo? Se eliminarán las claves de Firebase guardadas en este navegador.'
+      : 'Switch back to local demo storage? Stored Firebase keys will be removed from this browser.';
+    if (confirm(confirmMsg)) {
       clearStoredFirebaseConfig();
       window.location.reload();
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden border border-slate-100 max-h-[90vh] flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fadeIn">
+      <div className="bg-white rounded-xl max-w-md w-full shadow-lg border border-zinc-200 max-h-[90vh] flex flex-col">
         
         {/* Header */}
-        <div className="bg-slate-900 p-6 text-white relative">
+        <div className="p-5 border-b border-zinc-200 flex items-center justify-between">
+          <div>
+            <h2 className="text-base font-semibold text-zinc-900">{t('firebaseSettingsTitle')}</h2>
+            <p className="text-xs text-zinc-500 mt-0.5">{t('firebaseSettingsSubtitle')}</p>
+          </div>
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-1 rounded-full text-slate-400 hover:text-white hover:bg-white/10 transition"
+            className="p-1 rounded-md text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition"
           >
             <X className="w-5 h-5" />
           </button>
-          <div className="flex items-center space-x-2 text-cyan-400 mb-1">
-            <Database className="w-5 h-5" />
-            <span className="text-xs uppercase font-bold tracking-wider">Database & Auth Settings</span>
-          </div>
-          <h2 className="text-xl font-bold">Connect Firebase Project</h2>
-          <p className="text-xs text-slate-300 mt-1">
-            Connect your Firebase Cloud Firestore and Authentication for real-time cloud syncing across devices.
-          </p>
         </div>
 
         {/* Content */}
-        <form onSubmit={handleSave} className="p-6 space-y-4 overflow-y-auto flex-1">
+        <form onSubmit={handleSave} className="p-5 space-y-3.5 overflow-y-auto flex-1 text-xs">
 
           {savedSuccess && (
-            <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs flex items-center gap-2">
-              <Check className="w-4 h-4 text-emerald-600" />
-              <span>Firebase credentials saved! Reloading application...</span>
+            <div className="p-2.5 bg-zinc-100 border border-zinc-300 text-zinc-900 rounded-lg flex items-center gap-2">
+              <Check className="w-4 h-4 text-zinc-700" />
+              <span>{t('firebaseKeysSaved')}</span>
             </div>
           )}
 
-          <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs text-blue-900 flex items-start gap-2.5">
-            <KeyRound className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
-            <div>
-              <p className="font-semibold">Where to get your Firebase configuration?</p>
-              <p className="text-blue-700 mt-0.5 leading-relaxed">
-                Go to <a href="https://console.firebase.google.com" target="_blank" rel="noreferrer" className="underline font-medium">console.firebase.google.com</a> &gt; <b>Project Settings</b> &gt; <b>General</b> &gt; <b>Your apps (Web App)</b>, and copy the config object values.
-              </p>
-            </div>
+          <div className="bg-zinc-50 border border-zinc-200 rounded-lg p-3 text-zinc-600">
+            <p className="font-medium text-zinc-800">{t('firebaseHelp')}</p>
+            <p className="mt-0.5">{t('firebaseHelpDesc')}</p>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">API Key</label>
+            <label className="block font-medium text-zinc-700 mb-1">API Key</label>
             <input
               type="text"
               placeholder="AIzaSy..."
               value={config.apiKey}
               onChange={(e) => setConfig({ ...config, apiKey: e.target.value.trim() })}
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full px-3 py-1.5 border border-zinc-300 rounded-lg focus:outline-none focus:border-zinc-500"
               required
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Project ID</label>
+              <label className="block font-medium text-zinc-700 mb-1">Project ID</label>
               <input
                 type="text"
-                placeholder="my-ac-tracker"
+                placeholder="project-id"
                 value={config.projectId}
                 onChange={(e) => setConfig({ ...config, projectId: e.target.value.trim() })}
-                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-full px-3 py-1.5 border border-zinc-300 rounded-lg focus:outline-none focus:border-zinc-500"
                 required
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Auth Domain</label>
+              <label className="block font-medium text-zinc-700 mb-1">Auth Domain</label>
               <input
                 type="text"
-                placeholder="my-ac-tracker.firebaseapp.com"
+                placeholder="project.firebaseapp.com"
                 value={config.authDomain}
                 onChange={(e) => setConfig({ ...config, authDomain: e.target.value.trim() })}
-                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-full px-3 py-1.5 border border-zinc-300 rounded-lg focus:outline-none focus:border-zinc-500"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Storage Bucket</label>
+              <label className="block font-medium text-zinc-700 mb-1">Storage Bucket</label>
               <input
                 type="text"
-                placeholder="my-ac-tracker.firebasestorage.app"
+                placeholder="project.appspot.com"
                 value={config.storageBucket}
                 onChange={(e) => setConfig({ ...config, storageBucket: e.target.value.trim() })}
-                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-full px-3 py-1.5 border border-zinc-300 rounded-lg focus:outline-none focus:border-zinc-500"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Messaging Sender ID</label>
+              <label className="block font-medium text-zinc-700 mb-1">Sender ID</label>
               <input
                 type="text"
-                placeholder="1092837465"
+                placeholder="12345678"
                 value={config.messagingSenderId}
                 onChange={(e) => setConfig({ ...config, messagingSenderId: e.target.value.trim() })}
-                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-full px-3 py-1.5 border border-zinc-300 rounded-lg focus:outline-none focus:border-zinc-500"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">App ID</label>
+            <label className="block font-medium text-zinc-700 mb-1">App ID</label>
             <input
               type="text"
-              placeholder="1:1092837465:web:abcdef123"
+              placeholder="1:123456:web:abcdef"
               value={config.appId}
               onChange={(e) => setConfig({ ...config, appId: e.target.value.trim() })}
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full px-3 py-1.5 border border-zinc-300 rounded-lg focus:outline-none focus:border-zinc-500"
             />
           </div>
 
@@ -159,25 +156,24 @@ export const FirebaseSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
             <button
               type="button"
               onClick={handleClear}
-              className="text-xs text-red-600 hover:text-red-700 font-medium"
+              className="text-zinc-500 hover:text-red-600 font-medium"
             >
-              Reset to Local Demo
+              {t('btnResetDemo')}
             </button>
 
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 border border-slate-200 text-slate-600 rounded-lg text-sm hover:bg-slate-50 font-medium"
+                className="px-3 py-1.5 border border-zinc-300 text-zinc-700 rounded-lg hover:bg-zinc-50 font-medium"
               >
-                Cancel
+                {t('btnCancel')}
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium shadow-sm transition flex items-center gap-1.5"
+                className="px-4 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-lg font-medium transition"
               >
-                <RefreshCw className="w-4 h-4" />
-                <span>Save & Connect</span>
+                {t('btnSaveKeys')}
               </button>
             </div>
           </div>

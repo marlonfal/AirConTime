@@ -2,11 +2,11 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { 
   signInWithPopup, 
   signOut as fbSignOut, 
-  onAuthStateChanged,
-  User as FirebaseUser
+  onAuthStateChanged
 } from 'firebase/auth';
+import type { User as FirebaseUser } from 'firebase/auth';
 import { auth, googleProvider, facebookProvider, getStoredFirebaseConfig } from '../firebase';
-import { AppUser } from '../types';
+import type { AppUser } from '../types';
 
 interface AuthContextType {
   user: AppUser | null;
@@ -176,3 +176,4 @@ export const useAuth = () => {
   }
   return context;
 };
+

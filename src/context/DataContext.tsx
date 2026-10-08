@@ -8,7 +8,7 @@ import {
   updateDoc 
 } from 'firebase/firestore';
 import { db } from '../firebase';
-import { Client, ACUnit, ServiceLog } from '../types';
+import type { Client, ACUnit, ServiceLog } from '../types';
 import { calculateNextDueDate } from '../utils/maintenance';
 
 interface DataContextType {
@@ -500,3 +500,4 @@ export const useData = () => {
   }
   return context;
 };
+

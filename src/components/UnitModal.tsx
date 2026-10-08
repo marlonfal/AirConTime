@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useData } from '../context/DataContext';
-import { ACUnit } from '../types';
+import { useLanguage } from '../context/LanguageContext';
+import type { ACUnit } from '../types';
 import { POPULAR_BRANDS, REFRIGERANT_TYPES } from '../utils/maintenance';
-import { X, Cpu, Calendar, Building, Plus } from 'lucide-react';
+import { X, Calendar, Plus } from 'lucide-react';
 
 interface Props {
   isOpen: boolean;
@@ -18,6 +19,7 @@ export const UnitModal: React.FC<Props> = ({
   onOpenClientModal 
 }) => {
   const { clients, addUnit, updateUnit } = useData();
+  const { t } = useLanguage();
 
   const todayStr = new Date().toISOString().split('T')[0];
 
@@ -70,14 +72,14 @@ export const UnitModal: React.FC<Props> = ({
       setLastServiceDate(todayStr);
       setNotes('');
     }
-  }, [unitToEdit, clients, isOpen]);
+  }, [unitToEdit, clients, isOpen, clientId, todayStr]);
 
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!clientId) {
-      alert('Please select or add a client first.');
+      alert(t('noClientsFound'));
       return;
     }
 
@@ -126,60 +128,51 @@ export const UnitModal: React.FC<Props> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-white rounded-2xl max-w-xl w-full shadow-2xl overflow-hidden border border-slate-100 max-h-[92vh] flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fadeIn">
+      <div className="bg-white rounded-xl max-w-lg w-full shadow-lg border border-zinc-200 max-h-[90vh] flex flex-col">
         
         {/* Header */}
-        <div className="bg-slate-900 p-6 text-white relative">
+        <div className="p-5 border-b border-zinc-200 flex items-center justify-between">
+          <div>
+            <h2 className="text-base font-semibold text-zinc-900">
+              {unitToEdit ? t('unitModalTitleEdit') : t('unitModalTitleAdd')}
+            </h2>
+            <p className="text-xs text-zinc-500 mt-0.5">{t('unitModalSubtitle')}</p>
+          </div>
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-1 rounded-full text-slate-400 hover:text-white hover:bg-white/10 transition"
+            className="p-1 rounded-md text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition"
           >
             <X className="w-5 h-5" />
           </button>
-          <div className="flex items-center space-x-2 text-cyan-400 mb-1">
-            <Cpu className="w-5 h-5" />
-            <span className="text-xs uppercase font-bold tracking-wider">
-              {unitToEdit ? 'Edit Equipment' : 'Register New AC Unit'}
-            </span>
-          </div>
-          <h2 className="text-xl font-bold">
-            {unitToEdit ? 'Update Air Conditioner Unit' : 'Add Air Conditioner Unit'}
-          </h2>
-          <p className="text-xs text-slate-300 mt-1">
-            Configure unit location, specs, and maintenance recurrence schedule.
-          </p>
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto flex-1">
+        <form onSubmit={handleSubmit} className="p-5 space-y-3.5 overflow-y-auto flex-1 text-xs">
           
           {/* Client Selection */}
           <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
-                <Building className="w-3.5 h-3.5 text-blue-600" />
-                Customer / Location Account *
-              </label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="font-medium text-zinc-700">{t('clientAccount')}</label>
               {onOpenClientModal && (
                 <button
                   type="button"
                   onClick={onOpenClientModal}
-                  className="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
+                  className="text-zinc-600 hover:text-zinc-900 font-medium flex items-center gap-1"
                 >
-                  <Plus className="w-3 h-3" /> New Client
+                  <Plus className="w-3 h-3" /> {t('btnNewClient')}
                 </button>
               )}
             </div>
             {clients.length === 0 ? (
-              <div className="p-3 bg-amber-50 border border-amber-200 text-amber-800 text-xs rounded-lg">
-                No clients found. Please create a client first.
+              <div className="p-2.5 bg-zinc-50 border border-zinc-200 text-zinc-600 rounded-lg">
+                {t('noClientsFound')}
               </div>
             ) : (
               <select
                 value={clientId}
                 onChange={(e) => setClientId(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-full px-3 py-1.5 border border-zinc-300 rounded-lg focus:outline-none focus:border-zinc-500 bg-white"
                 required
               >
                 {clients.map((c) => (
@@ -193,15 +186,15 @@ export const UnitModal: React.FC<Props> = ({
 
           {/* Unit Location in Building */}
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Unit Room / Location in Building *
+            <label className="block font-medium text-zinc-700 mb-1">
+              {t('unitLocationRoom')}
             </label>
             <input
               type="text"
-              placeholder="e.g. Master Bedroom, Server Room 1, Rooftop Compressor #2"
+              placeholder="e.g. Master Bedroom, Server Room 1"
               value={locationInBuilding}
               onChange={(e) => setLocationInBuilding(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full px-3 py-1.5 border border-zinc-300 rounded-lg focus:outline-none focus:border-zinc-500"
               required
             />
           </div>
@@ -209,65 +202,66 @@ export const UnitModal: React.FC<Props> = ({
           {/* Brand & Custom Brand */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Brand *</label>
+              <label className="block font-medium text-zinc-700 mb-1">{t('brand')}</label>
               <select
                 value={brand}
                 onChange={(e) => setBrand(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-full px-3 py-1.5 border border-zinc-300 rounded-lg focus:outline-none focus:border-zinc-500 bg-white"
               >
                 {POPULAR_BRANDS.map(b => (
                   <option key={b} value={b}>{b}</option>
                 ))}
               </select>
             </div>
-            {brand === 'Other' && (
+            {brand === 'Other' ? (
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Custom Brand Name</label>
+                <label className="block font-medium text-zinc-700 mb-1">{t('customBrand')}</label>
                 <input
                   type="text"
-                  placeholder="Enter brand name"
+                  placeholder="Brand name"
                   value={customBrand}
                   onChange={(e) => setCustomBrand(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className="w-full px-3 py-1.5 border border-zinc-300 rounded-lg focus:outline-none focus:border-zinc-500"
                   required
                 />
               </div>
+            ) : (
+              <div>
+                <label className="block font-medium text-zinc-700 mb-1">{t('refrigerant')}</label>
+                <select
+                  value={refrigerantType}
+                  onChange={(e) => setRefrigerantType(e.target.value)}
+                  className="w-full px-3 py-1.5 border border-zinc-300 rounded-lg focus:outline-none focus:border-zinc-500 bg-white"
+                >
+                  {REFRIGERANT_TYPES.map(r => (
+                    <option key={r} value={r}>{r}</option>
+                  ))}
+                </select>
+              </div>
             )}
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Refrigerant Type</label>
-              <select
-                value={refrigerantType}
-                onChange={(e) => setRefrigerantType(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              >
-                {REFRIGERANT_TYPES.map(r => (
-                  <option key={r} value={r}>{r}</option>
-                ))}
-              </select>
-            </div>
           </div>
 
           {/* Model & Serial Numbers */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Model Number *</label>
+              <label className="block font-medium text-zinc-700 mb-1">{t('modelNumber')}</label>
               <input
                 type="text"
-                placeholder="e.g. VRV-IV-48, 50TCQ006"
+                placeholder="Model #"
                 value={modelNumber}
                 onChange={(e) => setModelNumber(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-full px-3 py-1.5 border border-zinc-300 rounded-lg focus:outline-none focus:border-zinc-500"
                 required
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Serial Number</label>
+              <label className="block font-medium text-zinc-700 mb-1">{t('serialNumber')}</label>
               <input
                 type="text"
-                placeholder="e.g. SN-8921734"
+                placeholder="Serial #"
                 value={serialNumber}
                 onChange={(e) => setSerialNumber(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-full px-3 py-1.5 border border-zinc-300 rounded-lg focus:outline-none focus:border-zinc-500"
               />
             </div>
           </div>
@@ -275,28 +269,28 @@ export const UnitModal: React.FC<Props> = ({
           {/* Capacity & Interval */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Cooling Capacity</label>
+              <label className="block font-medium text-zinc-700 mb-1">{t('coolingCapacity')}</label>
               <input
                 type="text"
                 placeholder="e.g. 24,000 BTU / 2 Ton"
                 value={coolingCapacity}
                 onChange={(e) => setCoolingCapacity(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-full px-3 py-1.5 border border-zinc-300 rounded-lg focus:outline-none focus:border-zinc-500"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Maintenance Frequency *
+              <label className="block font-medium text-zinc-700 mb-1">
+                {t('maintenanceFrequency')}
               </label>
               <select
                 value={maintenanceIntervalMonths}
                 onChange={(e) => setMaintenanceIntervalMonths(Number(e.target.value))}
-                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none font-medium text-blue-700"
+                className="w-full px-3 py-1.5 border border-zinc-300 rounded-lg focus:outline-none focus:border-zinc-500 bg-white"
               >
-                <option value={1}>Every 1 Month (Heavy Commercial)</option>
-                <option value={3}>Every 3 Months (Quarterly - Server / Medical)</option>
-                <option value={6}>Every 6 Months (Semi-annual - Standard)</option>
-                <option value={12}>Every 12 Months (Annual - Light Residential)</option>
+                <option value={1}>{t('freq1Mo')}</option>
+                <option value={3}>{t('freq3Mo')}</option>
+                <option value={6}>{t('freq6Mo')}</option>
+                <option value={12}>{t('freq12Mo')}</option>
               </select>
             </div>
           </div>
@@ -304,56 +298,56 @@ export const UnitModal: React.FC<Props> = ({
           {/* Dates */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1">
-                <Calendar className="w-3.5 h-3.5 text-blue-600" />
-                Last Service Date *
+              <label className="block font-medium text-zinc-700 mb-1 flex items-center gap-1">
+                <Calendar className="w-3 h-3 text-zinc-500" />
+                {t('lastServiceDate')}
               </label>
               <input
                 type="date"
                 value={lastServiceDate}
                 onChange={(e) => setLastServiceDate(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-full px-3 py-1.5 border border-zinc-300 rounded-lg focus:outline-none focus:border-zinc-500"
                 required
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Installation Date</label>
+              <label className="block font-medium text-zinc-700 mb-1">{t('installationDate')}</label>
               <input
                 type="date"
                 value={installationDate}
                 onChange={(e) => setInstallationDate(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-full px-3 py-1.5 border border-zinc-300 rounded-lg focus:outline-none focus:border-zinc-500"
               />
             </div>
           </div>
 
           {/* Notes */}
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Notes & Filter Sizes</label>
+            <label className="block font-medium text-zinc-700 mb-1">{t('notesLabel')}</label>
             <textarea
               rows={2}
-              placeholder="e.g. Filter size: 16x25x1. Unit mounted on anti-vibration roof curbs."
+              placeholder="Filter size, rooftop access notes..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full px-3 py-1.5 border border-zinc-300 rounded-lg focus:outline-none focus:border-zinc-500"
             />
           </div>
 
-          {/* Action Buttons */}
-          <div className="pt-2 flex items-center justify-end gap-3 border-t border-slate-200">
+          {/* Actions */}
+          <div className="pt-2 flex items-center justify-end gap-2 border-t border-zinc-200">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg text-sm hover:bg-slate-50 font-medium"
+              className="px-3.5 py-1.5 border border-zinc-300 text-zinc-700 rounded-lg hover:bg-zinc-50 font-medium"
             >
-              Cancel
+              {t('btnCancel')}
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium shadow-sm transition disabled:opacity-60"
+              className="px-4 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-lg font-medium transition disabled:opacity-50"
             >
-              {submitting ? 'Saving...' : unitToEdit ? 'Save Changes' : 'Register Unit'}
+              {submitting ? t('btnSaving') : unitToEdit ? t('btnSaveChanges') : t('btnRegisterUnit')}
             </button>
           </div>
 

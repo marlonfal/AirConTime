@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useData } from '../context/DataContext';
-import { Client } from '../types';
-import { X, Building2, Phone, Mail, MapPin } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
+import type { Client } from '../types';
+import { X } from 'lucide-react';
 
 interface Props {
   isOpen: boolean;
@@ -11,6 +12,7 @@ interface Props {
 
 export const ClientModal: React.FC<Props> = ({ isOpen, onClose, clientToEdit }) => {
   const { addClient, updateClient } = useData();
+  const { t } = useLanguage();
 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -67,120 +69,111 @@ export const ClientModal: React.FC<Props> = ({ isOpen, onClose, clientToEdit }) 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden border border-slate-100 flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fadeIn">
+      <div className="bg-white rounded-xl max-w-md w-full shadow-lg border border-zinc-200">
         
         {/* Header */}
-        <div className="bg-slate-900 p-6 text-white relative">
+        <div className="p-5 border-b border-zinc-200 flex items-center justify-between">
+          <div>
+            <h2 className="text-base font-semibold text-zinc-900">
+              {clientToEdit ? t('clientModalTitleEdit') : t('clientModalTitleAdd')}
+            </h2>
+            <p className="text-xs text-zinc-500 mt-0.5">{t('clientModalSubtitle')}</p>
+          </div>
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-1 rounded-full text-slate-400 hover:text-white hover:bg-white/10 transition"
+            className="p-1 rounded-md text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition"
           >
             <X className="w-5 h-5" />
           </button>
-          <div className="flex items-center space-x-2 text-cyan-400 mb-1">
-            <Building2 className="w-5 h-5" />
-            <span className="text-xs uppercase font-bold tracking-wider">
-              {clientToEdit ? 'Edit Client' : 'New Client & Site'}
-            </span>
-          </div>
-          <h2 className="text-xl font-bold">
-            {clientToEdit ? 'Update Client Account' : 'Add Client Account'}
-          </h2>
-          <p className="text-xs text-slate-300 mt-1">
-            Customer contact details and property service access instructions.
-          </p>
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-5 space-y-3.5 text-xs">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Client / Company Name *
+            <label className="block font-medium text-zinc-700 mb-1">
+              {t('clientName')}
             </label>
             <input
               type="text"
-              placeholder="e.g. Greenfield Medical Clinic or John Doe"
+              placeholder="e.g. John Doe or Acme Corp"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full px-3 py-1.5 border border-zinc-300 rounded-lg focus:outline-none focus:border-zinc-500"
               required
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1">
-                <Phone className="w-3.5 h-3.5 text-blue-600" />
-                Phone Number *
+              <label className="block font-medium text-zinc-700 mb-1">
+                {t('phoneNumber')}
               </label>
               <input
                 type="tel"
                 placeholder="(555) 000-0000"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-full px-3 py-1.5 border border-zinc-300 rounded-lg focus:outline-none focus:border-zinc-500"
                 required
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1">
-                <Mail className="w-3.5 h-3.5 text-blue-600" />
-                Email Address
+              <label className="block font-medium text-zinc-700 mb-1">
+                {t('emailAddress')}
               </label>
               <input
                 type="email"
-                placeholder="contact@client.com"
+                placeholder="client@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                className="w-full px-3 py-1.5 border border-zinc-300 rounded-lg focus:outline-none focus:border-zinc-500"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1">
-              <MapPin className="w-3.5 h-3.5 text-blue-600" />
-              Service Address / Building Location *
+            <label className="block font-medium text-zinc-700 mb-1">
+              {t('serviceAddress')}
             </label>
             <input
               type="text"
-              placeholder="e.g. 104 Healthcare Blvd, Suite 200"
+              placeholder="123 Main St, Suite 100"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full px-3 py-1.5 border border-zinc-300 rounded-lg focus:outline-none focus:border-zinc-500"
               required
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Access Notes & Site Instructions
+            <label className="block font-medium text-zinc-700 mb-1">
+              {t('accessNotes')}
             </label>
             <textarea
               rows={2}
-              placeholder="e.g. Gate code #1234, ask for facility manager Bob, roof ladder in courtyard"
+              placeholder="Gate code, rooftop access..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full px-3 py-1.5 border border-zinc-300 rounded-lg focus:outline-none focus:border-zinc-500"
             />
           </div>
 
           {/* Form Actions */}
-          <div className="pt-2 flex items-center justify-end gap-3 border-t border-slate-200">
+          <div className="pt-2 flex items-center justify-end gap-2 border-t border-zinc-200">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg text-sm hover:bg-slate-50 font-medium"
+              className="px-3.5 py-1.5 border border-zinc-300 text-zinc-700 rounded-lg hover:bg-zinc-50 font-medium"
             >
-              Cancel
+              {t('btnCancel')}
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium shadow-sm transition disabled:opacity-60"
+              className="px-4 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-lg font-medium transition disabled:opacity-50"
             >
-              {submitting ? 'Saving...' : clientToEdit ? 'Save Changes' : 'Create Client'}
+              {submitting ? t('btnSaving') : clientToEdit ? t('btnSaveChanges') : t('btnCreateClient')}
             </button>
           </div>
 
